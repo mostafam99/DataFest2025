@@ -48,8 +48,19 @@ if st.button("Predict City"):
     st.write("Encoded Input:")
     st.write(encoded_input)
 
-    prediction = model.predict(encoded_input)
-    predicted_index = np.argmax(prediction, axis=1)[0]
-    predicted_city = label_columns[predicted_index]
+    prediction = model.predict(encoded_input)[0]  # Single row, so grab [0]
+    
+    # Pair each score with its corresponding city label
+    city_scores = list(zip(label_columns, prediction))
 
-    st.success(f"Predicted City: **{predicted_city}**")
+    # Sort by descending score
+    sorted_cities = sorted(city_scores, key=lambda x: x[1], reverse=True)
+
+    # Display top 5
+    st.subheader("Top 5 Most Suitable Cities:")
+    for city, score in sorted_cities[:5]:
+        st.write(f"🔹 **{city}** — Suitability Score: `{score:.2%}`")
+
+    # Highlight best match
+    best_city, best_score = sorted_cities[0]
+    st.success(f"🏙️ Most Suitable City: **{best_city}** with {best_score:.2%} confidence.")
